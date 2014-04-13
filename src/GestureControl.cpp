@@ -4,12 +4,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-//const cv::Scalar gatorade_MIN(5, 150, 0);
-//const cv::Scalar gatorade_MAX(15, 245, 255);
-const cv::Scalar gatorade_MIN(60, 140, 60);
-const cv::Scalar gatorade_MAX(230, 190, 100);
-const cv::Scalar blue_sticky_MIN(102, 130, 0);
-const cv::Scalar blue_sticky_MAX(108, 230, 255);
+const cv::Scalar orange_MIN(60, 140, 60);
+const cv::Scalar orange_MAX(230, 190, 100);
 
 cv::Mat global_image;
 
@@ -36,10 +32,9 @@ cv::Mat segmentByColor(const cv::Mat& image)
         int from_to[] = {0,0};
         cv::mixChannels(&hsv_image, 1, &just_h, 1, from_to, 1);
         global_image = hsv_image;
-        //cv::imshow("hsv", just_h);
 
     cv::Mat segmented_image(hsv_image.size(), CV_8UC1);
-    cv::inRange(hsv_image, gatorade_MIN, gatorade_MAX, segmented_image);
+    cv::inRange(hsv_image, orange_MIN, orange_MAX, segmented_image);
 
     return segmented_image;
 }
@@ -66,7 +61,6 @@ int main(int argc, char** argv)
     cv::namedWindow("cam");
     cv::VideoCapture cam(1);
 
-    //cv::namedWindow("hsv");
     cv::setMouseCallback("cam", onMouse, 0);
 
     while (true) {
@@ -97,28 +91,7 @@ int main(int argc, char** argv)
             cv::drawContours(cam_image, contours, max_circularity_i, cv::Scalar(0,0,255), -1);
         }
 
-
-/*
-        cv::Mat detect_this(cam_image.size(), CV_8UC1, cv::Scalar(0));
-        cv::drawContours(detect_this, contours, largest_contour_i, cv::Scalar(255), 2);
-        cv::GaussianBlur(detect_this, detect_this, cv::Size(9, 9), 2);
-        cv::namedWindow("blur");
-        cv::imshow("blur", detect_this);
-
-        std::vector<cv::Vec3f> circles;
-        cv::HoughCircles(detect_this, circles, CV_HOUGH_GRADIENT, 1, 1);
-        std::cout << circles.size() << std::endl;
-        for (size_t i = 0; i < circles.size(); ++i) {
-            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-            int radius = cvRound(circles[i][2]);
-            circle(cam_image, center, 3, cv::Scalar(0,255,0));
-            circle(cam_image, center, radius, cv::Scalar(0,0,255));
-        }
-        */
-
-
         cv::imshow("cam", cam_image);
-        //cv::imshow("skin", skin_image);
 
         int key = cv::waitKey(10);
         if (key == 'q') {
