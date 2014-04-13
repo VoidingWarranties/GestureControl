@@ -128,11 +128,28 @@ int main(int argc, char** argv)
         cam >> cam_image;
 
         cv::Mat pp_image = preProcess(cam_image);
-        std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image);
+        std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image, 1);
         std::vector<std::pair<cv::Point2f, float> > circles = boundingCircles(most_circular);
 
+        std::sort(circles.begin(), circles.end(), [](const std::pair<cv::Point2f, float>& a, const std::pair<cv::Point2f, float>& b)
+            {
+                return (a.first.x < b.first.x);
+            });
+
         for (size_t i = 0; i < circles.size(); ++i) {
-            cv::circle(cam_image, circles[i].first, circles[i].second, cv::Scalar(255,0,0), 2);
+            cv::Scalar color;
+            switch (i) {
+                case 0:
+                    color = cv::Scalar(255,0,0);
+                    break;
+                case 1:
+                    color = cv::Scalar(0,255,0);
+                    break;
+                case 2:
+                    color = cv::Scalar(0,0,255);
+                    break;
+            }
+            cv::circle(cam_image, circles[i].first, circles[i].second, color, 2);
         }
 
         if (circles.size() > 0) {
