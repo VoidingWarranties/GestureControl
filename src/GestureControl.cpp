@@ -127,7 +127,8 @@ int main(int argc, char** argv)
 
     cv::setMouseCallback("cam", onMouse, 0);
 
-    Gesture current_gesture;
+    //Gesture_1hand current_gesture;
+    Gesture_2hand current_gesture;
 
     size_t no_detects = 0;
 
@@ -158,6 +159,24 @@ int main(int argc, char** argv)
                     break;
             }
             cv::circle(cam_image, circles[i].first, circles[i].second, color, 2);
+        }
+
+        if (circles.size() == 2) {
+            if (current_gesture.status() == Gesture_2hand::NONE) {
+                std::cout << "MOVE ABSOLUTE START" << std::endl;
+            }
+            current_gesture.updatePos(std::pair<cv::Point2f, cv::Point2f>(circles[0].first, circles[1].first));
+            no_detects = 0;
+            int xPos = current_gesture.xPos() - (cam_image.cols / 2);
+            int yPos = current_gesture.yPos() - (cam_image.rows / 2);
+            std::cout << xPos << " " << yPos << std::endl;
+        } else if (current_gesture.status() == Gesture_2hand::IN_PROGRESS) {
+            ++no_detects;
+            if (no_detects > 15) {
+                current_gesture.endGesture();
+                no_detects = 0;
+                std::cout << "MOVE ABSOLUTE STOP" << std::endl;
+            }
         }
 
 /*

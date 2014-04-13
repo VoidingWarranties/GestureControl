@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-void Gesture::addPoint(const cv::Point2f& point)
+void Gesture_1hand::addPoint(const cv::Point2f& point)
 {
     status_ = 0;
 
@@ -28,7 +28,7 @@ void Gesture::addPoint(const cv::Point2f& point)
     }
 }
 
-int Gesture::endGesture()
+int Gesture_1hand::endGesture()
 {
     status_ = analyzePoints(points_);
 
@@ -40,7 +40,7 @@ int Gesture::endGesture()
     return answer;
 }
 
-int Gesture::analyzePoints(const std::vector<cv::Point2f>& points)
+int Gesture_1hand::analyzePoints(const std::vector<cv::Point2f>& points)
 {
     if (points.empty()) {
         return UNKNOWN;
