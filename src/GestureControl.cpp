@@ -122,12 +122,9 @@ int main(int argc, char** argv)
         cam >> cam_image;
 
         cv::Mat pp_image = preProcess(cam_image);
-        cv::namedWindow("foobar");
-        cv::imshow("foobar", pp_image);
-
         std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image);
-
         std::vector<std::pair<cv::Point2f, float> > circles = boundingCircles(most_circular);
+
         for (size_t i = 0; i < circles.size(); ++i) {
             cv::circle(cam_image, circles[i].first, circles[i].second, cv::Scalar(255,0,0), 2);
         }
