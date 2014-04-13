@@ -98,6 +98,18 @@ std::vector<std::vector<cv::Point> > getNMostCircularObjects(const cv::Mat& imag
     return most_circular;
 }
 
+std::vector<std::pair<cv::Point2f, float> > boundingCircles(const std::vector<std::vector<cv::Point> >& contours)
+{
+    std::vector<std::pair<cv::Point2f, float> > circles;
+    for (size_t i = 0; i < contours.size(); ++i) {
+        cv::Point2f tmp_center;
+        float tmp_radius;
+        cv::minEnclosingCircle(contours[i], tmp_center, tmp_radius);
+        circles.push_back(std::pair<cv::Point2f, float>(tmp_center, tmp_radius));
+    }
+    return circles;
+}
+
 int main(int argc, char** argv)
 {
     cv::namedWindow("cam");
@@ -115,15 +127,9 @@ int main(int argc, char** argv)
 
         std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image);
 
-        std::vector<cv::Point2f> centers;
-        std::vector<float> radii;
-        for (size_t i = 0; i < most_circular.size(); ++i) {
-            cv::Point2f tmp_center;
-            float tmp_radius;
-            cv::minEnclosingCircle(most_circular[i], tmp_center, tmp_radius);
-            centers.push_back(tmp_center);
-            radii.push_back(tmp_radius);
-            cv::circle(cam_image, tmp_center, (int)tmp_radius, cv::Scalar(255,0,0), 2);
+        std::vector<std::pair<cv::Point2f, float> > circles = boundingCircles(most_circular);
+        for (size_t i = 0; i < circles.size(); ++i) {
+            cv::circle(cam_image, circles[i].first, circles[i].second, cv::Scalar(255,0,0), 2);
         }
 
         cv::imshow("cam", cam_image);
