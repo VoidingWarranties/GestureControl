@@ -12,11 +12,11 @@
  * - background subtraction so that only moving objects are considered for tracking
  */
 
-#define MIN_CIRCULARITY 0.8
+#define MIN_CIRCULARITY 0.6
 #define MIN_AREA 500
 
-const cv::Scalar orange_MIN(60, 135, 60);
-const cv::Scalar orange_MAX(230, 190, 100);
+const cv::Scalar orange_MIN(130, 155, 70);
+const cv::Scalar orange_MAX(200, 190, 100);
 
 cv::Mat global_image;
 
@@ -139,9 +139,9 @@ int main(int argc, char** argv)
             // this is hardcoded for 1 circle. need to change in the future for multiple circles
             current_gesture.addPoint(circles[0].first); // could use the radius as the third dimension
             no_detects = 0;
-        } else if (current_gesture.status() == 0) {
+        } else if (current_gesture.status() == Gesture::IN_PROGRESS) {
             ++no_detects;
-            if (no_detects > 30) {
+            if (no_detects > 20) {
                 int gest = current_gesture.endGesture();
                 std::cout << "Gesture detected! " << gest << std::endl;
                 no_detects = 0;

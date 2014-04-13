@@ -1,5 +1,9 @@
 #include "Gesture.hpp"
 
+#include <opencv2/imgproc/imgproc.hpp>
+
+#include <opencv2/highgui/highgui.hpp>
+
 #include <iostream>
 
 void Gesture::addPoint(const cv::Point2f& point)
@@ -38,5 +42,25 @@ int Gesture::endGesture()
 
 int Gesture::analyzePoints(const std::vector<cv::Point2f>& points)
 {
-    return 9;
+    if (points.empty()) {
+        return UNKNOWN;
+    }
+
+    cv::Rect bounding_rect = boundingRect(points);
+
+    if (bounding_rect.width > bounding_rect.height) {
+        if (points.front().x > points.back().x) {
+            return SWIPE_RIGHT;
+        } else {
+            return SWIPE_LEFT;
+        }
+    } else {
+        if (points.front().y > points.back().y) {
+            return SWIPE_UP;
+        } else {
+            return SWIPE_DOWN;
+        }
+    }
+
+    return UNKNOWN;
 }

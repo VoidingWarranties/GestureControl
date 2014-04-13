@@ -7,7 +7,17 @@
 
 class Gesture {
 public:
-    Gesture() : status_(-1) {}
+    const static int NONE = -1;
+    const static int IN_PROGRESS = 0;
+    const static int UNKNOWN = 1;
+    const static int SWIPE_LEFT = 2;
+    const static int SWIPE_RIGHT = 3;
+    const static int SWIPE_UP = 4;
+    const static int SWIPE_DOWN = 5;
+    const static int LOOP_CW = 6;
+    const static int LOOP_CCW = 7;
+
+    Gesture() : status_(NONE) {}
 
     void addPoint(const cv::Point2f& point);
     int endGesture();
