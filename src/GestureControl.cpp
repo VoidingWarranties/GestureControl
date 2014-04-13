@@ -127,8 +127,8 @@ int main(int argc, char** argv)
 
     cv::setMouseCallback("cam", onMouse, 0);
 
-    //Gesture_1hand current_gesture;
-    Gesture_2hand current_gesture;
+    Gesture_1hand current_gesture_1;
+    Gesture_2hand current_gesture_2;
 
     size_t no_detects = 0;
 
@@ -161,38 +161,34 @@ int main(int argc, char** argv)
             cv::circle(cam_image, circles[i].first, circles[i].second, color, 2);
         }
 
-        if (circles.size() == 2) {
-            if (current_gesture.status() == Gesture_2hand::NONE) {
-                std::cout << "MOVE ABSOLUTE START" << std::endl;
-            }
-            current_gesture.updatePos(std::pair<cv::Point2f, cv::Point2f>(circles[0].first, circles[1].first));
+        if (circles.size() == 1) {
+            // this is hardcoded for 1 circle. need to change in the future for multiple circles
+            current_gesture_1.addPoint(circles[0].first); // could use the radius as the third dimension
             no_detects = 0;
-            int xPos = current_gesture.xPos() - (cam_image.cols / 2);
-            int yPos = current_gesture.yPos() - (cam_image.rows / 2);
-            std::cout << xPos << " " << yPos << std::endl;
-        } else if (current_gesture.status() == Gesture_2hand::IN_PROGRESS) {
+        } else if (circles.size() == 0 && current_gesture_1.status() == Gesture_1hand::IN_PROGRESS) {
             ++no_detects;
             if (no_detects > 15) {
-                current_gesture.endGesture();
+                int gest = current_gesture_1.endGesture();
+                std::cout << "Gesture detected! " << gest << std::endl;
+                no_detects = 0;
+            }
+        } else if (circles.size() == 2) {
+            if (current_gesture_2.status() == Gesture_2hand::NONE) {
+                std::cout << "MOVE ABSOLUTE START" << std::endl;
+            }
+            current_gesture_2.updatePos(std::pair<cv::Point2f, cv::Point2f>(circles[0].first, circles[1].first));
+            no_detects = 0;
+            int xPos = current_gesture_2.xPos() - (cam_image.cols / 2);
+            int yPos = current_gesture_2.yPos() - (cam_image.rows / 2);
+            std::cout << xPos << " " << yPos << std::endl;
+        } else if (current_gesture_2.status() == Gesture_2hand::IN_PROGRESS) {
+            ++no_detects;
+            if (no_detects > 15) {
+                current_gesture_2.endGesture();
                 no_detects = 0;
                 std::cout << "MOVE ABSOLUTE STOP" << std::endl;
             }
         }
-
-/*
-        if (circles.size() > 0) {
-            // this is hardcoded for 1 circle. need to change in the future for multiple circles
-            current_gesture.addPoint(circles[0].first); // could use the radius as the third dimension
-            no_detects = 0;
-        } else if (current_gesture.status() == Gesture::IN_PROGRESS) {
-            ++no_detects;
-            if (no_detects > 15) {
-                int gest = current_gesture.endGesture();
-                std::cout << "Gesture detected! " << gest << std::endl;
-                no_detects = 0;
-            }
-        }
-        */
 
         cv::imshow("cam", cam_image);
 
