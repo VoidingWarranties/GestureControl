@@ -15,8 +15,9 @@
 #define MIN_CIRCULARITY 0.6
 #define MIN_AREA 500
 
-const cv::Scalar orange_MIN(130, 155, 70);
-const cv::Scalar orange_MAX(200, 190, 100);
+int Y_val_min = 100, Y_val_max = 220;
+int Cb_val_min = 140, Cb_val_max = 175;
+int Cr_val_min = 70, Cr_val_max = 110;
 
 cv::Mat global_image;
 
@@ -45,7 +46,7 @@ cv::Mat segmentByColor(const cv::Mat& image)
         global_image = hsv_image;
 
     cv::Mat segmented_image(hsv_image.size(), CV_8UC1);
-    cv::inRange(hsv_image, orange_MIN, orange_MAX, segmented_image);
+    cv::inRange(hsv_image, cv::Scalar(Y_val_min, Cb_val_min, Cr_val_min), cv::Scalar(Y_val_max, Cb_val_max, Cr_val_max), segmented_image);
 
     return segmented_image;
 }
@@ -115,6 +116,13 @@ std::vector<std::pair<cv::Point2f, float> > boundingCircles(const std::vector<st
 int main(int argc, char** argv)
 {
     cv::namedWindow("cam");
+    cv::createTrackbar("Y min value", "cam", &Y_val_min, 255);
+    cv::createTrackbar("Y max value", "cam", &Y_val_max, 255);
+    cv::createTrackbar("Cb min value", "cam", &Cb_val_min, 255);
+    cv::createTrackbar("Cb max value", "cam", &Cb_val_max, 255);
+    cv::createTrackbar("Cr min value", "cam", &Cr_val_min, 255);
+    cv::createTrackbar("Cr max value", "cam", &Cr_val_max, 255);
+
     cv::VideoCapture cam(1);
 
     cv::setMouseCallback("cam", onMouse, 0);
@@ -128,7 +136,7 @@ int main(int argc, char** argv)
         cam >> cam_image;
 
         cv::Mat pp_image = preProcess(cam_image);
-        std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image, 1);
+        std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image, 2);
         std::vector<std::pair<cv::Point2f, float> > circles = boundingCircles(most_circular);
 
         std::sort(circles.begin(), circles.end(), [](const std::pair<cv::Point2f, float>& a, const std::pair<cv::Point2f, float>& b)
@@ -152,18 +160,20 @@ int main(int argc, char** argv)
             cv::circle(cam_image, circles[i].first, circles[i].second, color, 2);
         }
 
+/*
         if (circles.size() > 0) {
             // this is hardcoded for 1 circle. need to change in the future for multiple circles
             current_gesture.addPoint(circles[0].first); // could use the radius as the third dimension
             no_detects = 0;
         } else if (current_gesture.status() == Gesture::IN_PROGRESS) {
             ++no_detects;
-            if (no_detects > 20) {
+            if (no_detects > 15) {
                 int gest = current_gesture.endGesture();
                 std::cout << "Gesture detected! " << gest << std::endl;
                 no_detects = 0;
             }
         }
+        */
 
         cv::imshow("cam", cam_image);
 
