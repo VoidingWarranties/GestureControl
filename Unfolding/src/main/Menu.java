@@ -25,6 +25,8 @@ public class Menu{
                 valid = true;
             }
             else if(c.getInstruction().equals("Right")){
+                c.setNew(false);
+                com.bulenkov.game2048.Game2048.setComm(c);
                 com.bulenkov.game2048.Game2048.main(null);
                 valid = true;
             }

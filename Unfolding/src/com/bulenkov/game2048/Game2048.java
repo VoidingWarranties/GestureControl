@@ -23,6 +23,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import main.Comms;
 
 /**
  * @author Konstantin Bulenkov
@@ -37,40 +38,42 @@ public class Game2048 extends JPanel{
   boolean myWin = false;
   boolean myLose = false;
   int myScore = 0;
+  static boolean ready = false;
+  
+  static Comms mIC;
+  String instruction;
+    
+  public synchronized static void setComm(Comms c){
+      mIC = c;
+  }
 
-  public Game2048() {
+  public Game2048(JFrame j) {
+      resetGame();
     setFocusable(true);
-    addKeyListener(new KeyAdapter() {
-      @Override
-      public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-          resetGame();
+    j.setLocationRelativeTo(null);
+    j.setVisible(true);
+    paint(j.getGraphics());
+    while(!myLose && !myWin){
+        if(!canMove()){
+            myLose = true;
         }
-        if (!canMove()) {
-          myLose = true;
+        while(!mIC.getNew());
+        instruction = mIC.getInstruction();
+        if(instruction.equals("Left")){
+            left();
         }
-
-        if (!myWin && !myLose) {
-          switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT:
-              left();
-              break;
-            case KeyEvent.VK_RIGHT:
-              right();
-              break;
-            case KeyEvent.VK_DOWN:
-              down();
-              break;
-            case KeyEvent.VK_UP:
-              up();
-              break;
-          }
+        else if(instruction.equals("Right")){
+            right();
         }
-
-        repaint();
-      }
-    });
-    resetGame();
+        else if(instruction.equals("Up")){
+            up();
+        }
+        else if(instruction.equals("Down")){
+            down();
+        }
+        mIC.setNew(false);
+        paint(j.getGraphics());
+    }
   }
 
   public void resetGame() {
@@ -362,9 +365,10 @@ public class Game2048 extends JPanel{
     game.setSize(340, 400);
     game.setResizable(false);
 
-    game.add(new Game2048());
-
-    game.setLocationRelativeTo(null);
-    game.setVisible(true);
+    
+    game.add(new Game2048(game));
+    
+    //game.setLocationRelativeTo(null);
+    //game.setVisible(true);
   }
 }

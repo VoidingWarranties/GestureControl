@@ -62,7 +62,6 @@ public class Comms implements Runnable{
             Logger.getLogger(Comms.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        System.out.println("Accepted"); 
         try {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         } catch (IOException ex) {
