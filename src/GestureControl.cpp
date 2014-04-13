@@ -70,7 +70,7 @@ bool contour_comp(const std::pair<std::vector<cv::Point>, float>& a, const std::
     return (a.second > b.second);
 }
 
-std::vector<std::pair<std::vector<cv::Point>, float> > getMostCircularObjects(const cv::Mat& image)
+std::vector<std::vector<cv::Point> > getNMostCircularObjects(const cv::Mat& image, size_t n = 1)
 {
     std::vector<std::vector<cv::Point> > contours;
     std::vector<std::pair<std::vector<cv::Point>, float> > contour_circularities;
@@ -80,20 +80,22 @@ std::vector<std::pair<std::vector<cv::Point>, float> > getMostCircularObjects(co
         double area = cv::contourArea(contours[i]);
         double circularity = 4 * 3.14159 * area / (perimeter * perimeter);
         contour_circularities.push_back(std::pair<std::vector<cv::Point>, float>(contours[i], circularity));
-        //cv::drawContours(cam_image, contours, max_circularity_i, cv::Scalar(255,0,0), 2);
     }
 
     //std::sort(contour_circularities.begin(), contour_circularities.end(), [](const std::pair<std::vector<cv::Point>, float>& a, const std::pair<std::vector<cv::Point>, float>& b) { return (a.second > b.second); });
     std::sort(contour_circularities.begin(), contour_circularities.end(), contour_comp);
 
-/*
-    if (max_circularity > 0.77) {
-        cv::drawContours(cam_image, contours, max_circularity_i, cv::Scalar(0,255,0), 2);
-        cv::drawContours(cam_image, contours, max_circularity_i, cv::Scalar(0,0,255), -1);
+    std::vector<std::vector<cv::Point> > most_circular;
+    for (size_t i = 0; i < contour_circularities.size(); ++i) {
+        if (contour_circularities[i].second > MIN_CIRCULARITY && cv::contourArea(contour_circularities[i].first) > MIN_AREA) {
+            most_circular.push_back(contour_circularities[i].first);
+            if (most_circular.size() >= n) {
+                break;
+            }
+        }
     }
-*/
 
-    return contour_circularities;
+    return most_circular;
 }
 
 int main(int argc, char** argv)
@@ -111,19 +113,18 @@ int main(int argc, char** argv)
         cv::namedWindow("foobar");
         cv::imshow("foobar", pp_image);
 
-        std::vector<std::pair<std::vector<cv::Point>, float> > contour_circularity = getMostCircularObjects(pp_image);
-        size_t num_objects = 1;
-        std::vector<std::vector<cv::Point> > most_circular;
-        for (size_t i = 0; i < contour_circularity.size(); ++i) {
-            if (contour_circularity[i].second > MIN_CIRCULARITY && cv::contourArea(contour_circularity[i].first) > MIN_AREA) {
-                most_circular.push_back(contour_circularity[i].first);
-                if (most_circular.size() >= num_objects) {
-                    break;
-                }
-            }
+        std::vector<std::vector<cv::Point> > most_circular = getNMostCircularObjects(pp_image);
+
+        std::vector<cv::Point2f> centers;
+        std::vector<float> radii;
+        for (size_t i = 0; i < most_circular.size(); ++i) {
+            cv::Point2f tmp_center;
+            float tmp_radius;
+            cv::minEnclosingCircle(most_circular[i], tmp_center, tmp_radius);
+            centers.push_back(tmp_center);
+            radii.push_back(tmp_radius);
+            cv::circle(cam_image, tmp_center, (int)tmp_radius, cv::Scalar(255,0,0), 2);
         }
-        cv::drawContours(cam_image, most_circular, -1, cv::Scalar(0,255,0), 2);
-        cv::drawContours(cam_image, most_circular, -1, cv::Scalar(0,0,255), -1);
 
         cv::imshow("cam", cam_image);
 
