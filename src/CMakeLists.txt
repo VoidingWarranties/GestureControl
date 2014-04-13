@@ -6,5 +6,8 @@ if (UNIX)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 endif(UNIX)
 
+include_directories ("${PROJECT_SOURCE_DIR}/Gesture")
+add_subdirectory (Gesture)
+
 add_executable (GestureControl GestureControl.cpp)
-target_link_libraries (GestureControl ${OpenCV_LIBS})
+target_link_libraries (GestureControl ${OpenCV_LIBS} Gesture)

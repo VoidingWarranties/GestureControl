@@ -6,6 +6,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include "Gesture.hpp"
+
 /* TO DO:
  * - background subtraction so that only moving objects are considered for tracking
  */
@@ -117,6 +119,10 @@ int main(int argc, char** argv)
 
     cv::setMouseCallback("cam", onMouse, 0);
 
+    Gesture current_gesture;
+
+    size_t no_detects = 0;
+
     while (true) {
         cv::Mat cam_image;
         cam >> cam_image;
@@ -129,9 +135,22 @@ int main(int argc, char** argv)
             cv::circle(cam_image, circles[i].first, circles[i].second, cv::Scalar(255,0,0), 2);
         }
 
+        if (circles.size() > 0) {
+            // this is hardcoded for 1 circle. need to change in the future for multiple circles
+            current_gesture.addPoint(circles[0].first); // could use the radius as the third dimension
+            no_detects = 0;
+        } else if (current_gesture.status() == 0) {
+            ++no_detects;
+            if (no_detects > 30) {
+                int gest = current_gesture.endGesture();
+                std::cout << "Gesture detected! " << gest << std::endl;
+                no_detects = 0;
+            }
+        }
+
         cv::imshow("cam", cam_image);
 
-        int key = cv::waitKey(10);
+        int key = cv::waitKey(1);
         if (key == 'q') {
             break;
         }
