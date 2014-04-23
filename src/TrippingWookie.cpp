@@ -123,7 +123,7 @@ int main(int argc, char** argv)
     cv::createTrackbar("Cr min value", "cam", &Cr_val_min, 255);
     cv::createTrackbar("Cr max value", "cam", &Cr_val_max, 255);
 
-    cv::VideoCapture cam(1);
+    cv::VideoCapture cam(0);
 
     cv::setMouseCallback("cam", onMouse, 0);
 

@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (GestureControl)
+project (TrippingWookie)
 find_package (OpenCV REQUIRED)
 
 if (UNIX)
@@ -9,5 +9,5 @@ endif(UNIX)
 include_directories ("${PROJECT_SOURCE_DIR}/Gesture")
 add_subdirectory (Gesture)
 
-add_executable (GestureControl GestureControl.cpp)
-target_link_libraries (GestureControl ${OpenCV_LIBS} Gesture)
+add_executable (TrippingWookie TrippingWookie.cpp)
+target_link_libraries (TrippingWookie ${OpenCV_LIBS} Gesture)
